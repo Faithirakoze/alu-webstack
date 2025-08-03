@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Script to audit subdomain DNS records
+
+# Function to get DNS info of a subdomain
+get_subdomain_info() {
+  local full_domain=$1
+  local sub=$2
+  local output
+
+  output=$(dig +short "${sub}.${full_domain}" | head -n1)
+
+  if [[ -n $output ]]; then
+    echo "The subdomain ${sub} is a A record and points to ${output}"
+  else
+    echo "No A record found for ${sub}.${full_domain}"
+  fi
+}
+
+# Main logic
+main() {
+  domain=$1
+  subdomain=$2
+
+  if [[ -n "$subdomain" ]]; then
+    get_subdomain_info "$domain" "$subdomain"
+  else
+    for sub in www lb-01 web-01 web-02; do
+      get_subdomain_info "$domain" "$sub"
+    done
+  fi
+}
+
+# Call the main function (Ignore SC2086)
+main "$1" "$2"
+
